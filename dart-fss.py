@@ -18,3 +18,18 @@ corps = [*corp_list._corp_codes]
 print("[RUN] Getting Data...")
 fs = dart.fs.extract(corp_code='00126380', bgn_de='20170101', fs_tp=['bs'], report_tp='annual', lang='ko')
 print(fs['bs'])
+
+#===========================
+# DataFrame test
+#===========================
+fs2 = fs['bs']
+
+long_clm = fs2.columns[0][0]
+fs2.rename(columns={long_clm:"D"}, inplace=True)
+
+level0 = fs2.columns.get_level_values(0)
+level1 = fs2.columns.get_level_values(1)
+
+fs2.columns = level0 + "_" + level1 # Type Error
+
+##========Test end======== 
