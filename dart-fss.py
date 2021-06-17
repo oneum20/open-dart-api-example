@@ -17,7 +17,7 @@ corps = [*corp_list._corp_codes]
 # Get Data
 print("[RUN] Getting Data...")
 corp_code = '00126380'
-fs = dart.fs.extract(corp_code=corp_code bgn_de='20170101', fs_tp=['bs'], report_tp='annual', lang='ko')
+fs = dart.fs.extract(corp_code=corp_code, bgn_de='20170101', fs_tp=['bs'], report_tp='annual', lang='ko')
 df = fs['bs']
 
 # Convert DataFrame
