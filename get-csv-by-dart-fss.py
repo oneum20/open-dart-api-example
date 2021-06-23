@@ -35,6 +35,7 @@ df.columns = level # Columns
 col = list(df.columns[:7])
 years = list(df.columns[8:])
 
+# Get CSV
 for year in years :
     print(">> ", year)
 
@@ -42,5 +43,6 @@ for year in years :
     print("Columns : ", col_tmp)
 
     df_tmp = df[col_tmp]
+    df_tmp.rename(columns={year:"data"}, inplace=True)
 
     df_tmp.to_csv(year + ".csv", sep=",", na_rep="")
