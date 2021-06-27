@@ -31,18 +31,23 @@ level1[8:] = ['']*len(level1[8:])
 level = [x + y for x, y in zip(level0, level1)]
 df.columns = level # Columns
 
+# add corp_code columns
+df.insert(0, 'corp_code', corp_code)
+
 # Config Columns
-col = list(df.columns[:7])
-years = list(df.columns[8:])
+col = list(df.columns[:8])
+years = list(df.columns[9:])
 
 # Get CSV
 for year in years :
     print(">> ", year)
 
     col_tmp = col + [year]
-    print("Columns : ", col_tmp)
 
     df_tmp = df[col_tmp]
     df_tmp.rename(columns={year:"data"}, inplace=True)
+
+    # add year column
+    df_tmp.insert(1, 'year', year)
 
     df_tmp.to_csv(year + ".csv", sep=",", na_rep="")
