@@ -51,40 +51,43 @@ def removeColumns(df, tp, years):
 
     return df
 
-def inputDataIntoES(indexName, df):
+def inputDataIntoES(indexName, df, corp_code):
     es = Elasticsearch(host='10.10.30.182', port=30300)
     es.indices.create(index=indexName)
     documents = df.to_dict(orient='records')
     bulk(es, documents, index=indexName, doc_type=corp_code, raise_on_error=True)
     print('success to input data!!')
 
-# Set API Key
-print("[RUN] Setting API key...")
-api_key = input("API Key를 입력하세요: ")
-dart.set_api_key(api_key=api_key)
+def init():
+    # Set API Key
+    print("[RUN] Setting API key...")
+    api_key = input("API Key를 입력하세요: ")
+    dart.set_api_key(api_key=api_key)
 
-# Get Corp List
-print("[RUN] Getting Corp List...")
-# corp_list = dart.get_corp_list()
-# corps = [*corp_list._corp_codes]
+    # Get Corp List
+    print("[RUN] Getting Corp List...")
+    # corp_list = dart.get_corp_list()
+    # corps = [*corp_list._corp_codes]
 
-# Get Data
-print("[RUN] Getting Data...")
+    # Get Data
+    print("[RUN] Getting Data...")
 
-corp_code='005930'
-fs = dart.fs.extract(corp_code=corp_code, bgn_de='20170101', report_tp='annual', lang='ko')
+    corp_code='005930'
+    fs = dart.fs.extract(corp_code=corp_code, bgn_de='20170101', report_tp='annual', lang='ko')
 
-print('start bs..')
-df_bs = manufacturingDataFrame(fs,'bs')
-print(df_bs)
-inputDataIntoES("business_statement",df_bs)
+    print('start bs..')
+    df_bs = manufacturingDataFrame(fs,'bs')
+    print(df_bs)
+    inputDataIntoES("business_statement",df_bs, corp_code)
 
-print('start is..')
-df_is = manufacturingDataFrame(fs,'is')
-inputDataIntoES("income_statement", df_is)
+    print('start is..')
+    df_is = manufacturingDataFrame(fs,'is')
+    inputDataIntoES("income_statement", df_is, corp_code)
 
-print('start cf..')
-df_cf = manufacturingDataFrame(fs,'cf')
-inputDataIntoES("cash_flow_statement", df_cf)
+    print('start cf..')
+    df_cf = manufacturingDataFrame(fs,'cf')
+    inputDataIntoES("cash_flow_statement", df_cf, corp_code)
+
+init()
 
 
