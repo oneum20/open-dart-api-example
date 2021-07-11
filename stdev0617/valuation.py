@@ -135,10 +135,15 @@ def getKOSPIList():
 def makeDataFrameForValuation():
     years = ['2017','2018','2019','2020']
     corp_code = '005930'
-    raw_data = {'PER': [getPER(corp_code,'2017-12-28'), getPER(corp_code,'2018-12-28'), getPER(corp_code,'2019-12-30'), getPER(corp_code,'2020-12-30')],
-            'PBR': [getPBR(corp_code,'2017-12-28'), getPBR(corp_code,'2018-12-28'), getPBR(corp_code,'2019-12-30'), getPBR(corp_code,'2020-12-30')],
-            'PCR': [getPCR(corp_code,'2017-12-28'), getPCR(corp_code,'2018-12-28'), getPCR(corp_code,'2019-12-30'), getPCR(corp_code,'2020-12-30')],
-            'PSR': [getPSR(corp_code,'2017-12-28'), getPSR(corp_code,'2018-12-28'), getPSR(corp_code,'2019-12-30'), getPSR(corp_code,'2020-12-30')]}
+    total_2017 = getMarketCap(corp_code, '2017-12-28')
+    total_2018 = getMarketCap(corp_code, '2018-12-28')
+    total_2019 = getMarketCap(corp_code, '2019-12-30')
+    total_2020 = getMarketCap(corp_code, '2020-12-30')
+
+    raw_data = {'PER': [getPER(corp_code, total_2017, '2017-12-28'), getPER(corp_code, total_2018, '2018-12-28'), getPER(corp_code, total_2019, '2019-12-30'), getPER(corp_code, total_2020, '2020-12-30')],
+            'PBR': [getPBR(corp_code, total_2017, '2017-12-28'), getPBR(corp_code,total_2018,'2018-12-28'), getPBR(corp_code,total_2019, '2019-12-30'), getPBR(corp_code,total_2020,'2020-12-30')],
+            'PCR': [getPCR(corp_code, total_2017, '2017-12-28'), getPCR(corp_code,total_2018,'2018-12-28'), getPCR(corp_code,total_2019, '2019-12-30'), getPCR(corp_code,total_2020,'2020-12-30')],
+            'PSR': [getPSR(corp_code, total_2017, '2017-12-28'), getPSR(corp_code,total_2018,'2018-12-28'), getPSR(corp_code,total_2019, '2019-12-30'), getPSR(corp_code,total_2020,'2020-12-30')]}
     data = DataFrame(raw_data, index=years)
     return data
 
@@ -146,9 +151,9 @@ def getCloseData(corp_code, start_date, end_date):
     df = fdr.DataReader(corp_code, start_date, end_date)
     return int(df['Close'].get(start_date))
 
-def getCountOfIssuedStock(corp_code, date):
+def getMarketCap(corp_code, date):
     df = stock.get_market_cap_by_ticker(date.replace('-',''))
-    return int(df['상장주식수'].get(corp_code))
+    return int(df['시가총액'].get(corp_code))
 
 def getEarning(year):
     data = getESData("income_statement", "class1", "당기순이익(손실)")
@@ -162,23 +167,27 @@ def getCashflow(year):
     data = getESData("cash_flow_statement", "label_ko", "영업활동 현금흐름")
     return int(data['hits']['hits'][0]['_source'][year])
 
-def getPER(corp_code, date):
+def getPER(corp_code, total, date):
     year = date[:4]
-    return getCloseData(corp_code, date, date) * getCountOfIssuedStock(corp_code, date) / getEarning(year)
+    # return getCloseData(corp_code, date, date) * getCountOfIssuedStock(corp_code, date) / getEarning(year)
+    return total / getEarning(year)
 
-def getPBR(corp_code, date):
+def getPBR(corp_code, total, date):
     year = date[:4]
     assets = int(getESData("business_statement", "class2", "자산총계")['hits']['hits'][0]['_source'][year])
     liabilities = int(getESData("business_statement", "class2", "부채총계")['hits']['hits'][0]['_source'][year])
-    return getCloseData(corp_code, date, date) * getCountOfIssuedStock(corp_code, date) / (assets - liabilities);
+    # return getCloseData(corp_code, date, date) * getCountOfIssuedStock(corp_code, date) / (assets - liabilities);
+    return total / (assets - liabilities);
 
-def getPSR(corp_code, date):
+def getPSR(corp_code, total, date):
     year = date[:4]
-    return getCloseData(corp_code, date, date) * getCountOfIssuedStock(corp_code, date) / getSales(year)
+    # return getCloseData(corp_code, date, date) * getCountOfIssuedStock(corp_code, date) / getSales(year)
+    return total / getSales(year)
 
-def getPCR(corp_code, date):
+def getPCR(corp_code, total, date):
     year = date[:4]
-    return getCloseData(corp_code, date, date) * getCountOfIssuedStock(corp_code, date) / getCashflow(year)
+    # return getCloseData(corp_code, date, date) * getCountOfIssuedStock(corp_code, date) / getCashflow(year)
+    return total / getCashflow(year)
 
 def printValuation(corp_code, date):
     print('PER: ', getPER(corp_code, date))
@@ -191,9 +200,9 @@ def init():
     end_date = '20201230'
     corp_code = '005930'
 
-    print("[RUN] Setting API key...")
-    api_key = input("API Key를 입력하세요: ")
-    dart_obj = OpenDartReader(api_key)
+    # print("[RUN] Setting API key...")
+    # api_key = input("API Key를 입력하세요: ")
+    # dart_obj = OpenDartReader(api_key)
 
     type = 'y'
     # drawDataFrame(getDefaultValuation(start_date, end_date, stock_id, type))
