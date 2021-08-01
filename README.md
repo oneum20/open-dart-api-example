@@ -10,3 +10,4 @@
 * dart-fss package 데이터를 csv 파일로 변환하여 생성
 ## get-stock-info.py
 * 크롤링하여 투자지표를 테이블로 가져오고, 해당 테이블을 기반으로 하여 line 차트 그림
+  
